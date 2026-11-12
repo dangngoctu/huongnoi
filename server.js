@@ -5,7 +5,12 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 3000;
-const FILE = path.join(__dirname, "data.json");
+// Railway: gắn Volume (vd /data) rồi đặt DATA_FILE=/data/data.json, không thì mỗi lần deploy lại mất dữ liệu
+const FILE = process.env.DATA_FILE || path.join(__dirname, "data.json");
+if (!fs.existsSync(FILE) && FILE !== path.join(__dirname, "data.json")) {
+  fs.mkdirSync(path.dirname(FILE), { recursive: true });
+  fs.copyFileSync(path.join(__dirname, "data.json"), FILE); // lần đầu: lấy dữ liệu mẫu trong repo
+}
 const PAGE = path.join(__dirname, "Xếp đội cầu lông.html");
 const SLOTS = { MD1: ["M", "M"], MD2: ["M", "M"], XD1: ["M", "F"], XD2: ["M", "F"], WD: ["F", "F"] };
 
