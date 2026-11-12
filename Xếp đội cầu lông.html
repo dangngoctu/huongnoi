@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xếp đội cầu lông – Team Hướng Nội</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --court:#1d6b4f; --court-deep:#134a37; --line:#ffffff;
+  --flag:#ffe14d; --ink:#17201c; --muted:#5d6b64;
+  --bg:#eef3ef; --surface:#ffffff; --border:#d5e0d9;
+  --male:#2b6cb0; --male-bg:#e3eefa; --female:#c0396b; --female-bg:#fbe6ee;
+  --agree:#1d7a45; --agree-bg:#e1f3e8; --disagree:#b3372f; --disagree-bg:#fbe6e4;
+  --warn:#8a5a00; --warn-bg:#fff3cc;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --court:#2a8a66; --court-deep:#0f3a2b; --line:#e9f2ed;
+    --flag:#ffd83a; --ink:#e8efeb; --muted:#9db0a6;
+    --bg:#101815; --surface:#18221e; --border:#2b3a33;
+    --male:#8ab8ec; --male-bg:#1b2b3d; --female:#f08fb3; --female-bg:#3a1d29;
+    --agree:#6fd39a; --agree-bg:#163326; --disagree:#f2918a; --disagree-bg:#3a1c1a;
+    --warn:#ffd27a; --warn-bg:#3a2e10;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --court:#2a8a66; --court-deep:#0f3a2b; --line:#e9f2ed;
+  --flag:#ffd83a; --ink:#e8efeb; --muted:#9db0a6;
+  --bg:#101815; --surface:#18221e; --border:#2b3a33;
+  --male:#8ab8ec; --male-bg:#1b2b3d; --female:#f08fb3; --female-bg:#3a1d29;
+  --agree:#6fd39a; --agree-bg:#163326; --disagree:#f2918a; --disagree-bg:#3a1c1a;
+  --warn:#ffd27a; --warn-bg:#3a2e10;
+  color-scheme: dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--flag);outline-offset:2px}
+
+/* Hero: a court seen from above */
+.hero{background:var(--court);color:#fff;position:relative;overflow:hidden}
+.hero-court{position:absolute;inset:0;pointer-events:none;opacity:.55}
+.hero-inner{position:relative;max-width:1100px;margin:0 auto;padding:40px 20px 34px}
+.team-tag{display:inline-block;background:var(--flag);color:#17201c;font-weight:800;padding:4px 12px;border:2px solid #17201c;font-size:15px}
+.hero h1{font-size:clamp(30px,5.5vw,52px);line-height:1.05;margin:14px 0 10px;font-weight:800;letter-spacing:-.02em;max-width:16ch}
+.hero p{margin:0;max-width:58ch;color:#e3f1ea}
+.rule-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.rule-strip span{border:1.5px solid rgba(255,255,255,.7);padding:4px 10px;font-size:14px;font-weight:600}
+
+main{max-width:1100px;margin:0 auto;padding:24px 20px 60px;display:grid;gap:28px}
+@media (min-width:900px){main{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}}
+
+h2{font-size:22px;margin:0 0 4px;font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 16px;font-size:15px}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+@media (min-width:900px){.builder{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}}
+
+/* Roster */
+.roster{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:14px;font-weight:600;border:1px solid transparent}
+.chip.M{background:var(--male-bg);color:var(--male)}
+.chip.F{background:var(--female-bg);color:var(--female)}
+.chip .count{font-size:12px;font-weight:700;opacity:.85}
+.chip.used2{border-color:currentColor}
+.linkbtn{background:none;border:0;padding:0;color:var(--court);font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:14px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .linkbtn{color:var(--agree)}}
+
+/* Slots */
+.slot{border-left:5px solid var(--court);padding:10px 0 10px 12px;margin-bottom:10px}
+.slot.MD{border-color:var(--male)} .slot.WD{border-color:var(--female)}
+.slot.XD{border-image:linear-gradient(var(--male) 50%,var(--female) 50%) 1}
+.slot-name{font-weight:700;font-size:15px;margin-bottom:6px}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.pair .amp{color:var(--muted);font-weight:700}
+select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)}
+select.bad{border-color:var(--disagree);background:var(--disagree-bg)}
+input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg)}
+label.field{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+
+.msgs{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.msgs li{font-size:14px;padding:8px 10px;border-radius:8px}
+.msgs .err{background:var(--disagree-bg);color:var(--disagree)}
+.msgs .warn{background:var(--warn-bg);color:var(--warn)}
+
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:700}
+.btn.primary{background:var(--court);color:#fff}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1.5px solid var(--border)}
+.status{font-size:14px;color:var(--muted);margin-top:10px;min-height:1.5em}
+
+/* Lineup list */
+.list-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sort{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.sort button{border:0;background:var(--surface);padding:7px 12px;font-size:14px;font-weight:600}
+.sort button[aria-pressed=true]{background:var(--court);color:#fff}
+.cards{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card.top{border:2px solid var(--flag)}
+.card-head{display:flex;justify-content:space-between;gap:10px;padding:14px 16px 6px;align-items:start}
+.card-title{font-weight:800;font-size:18px;margin:0;line-height:1.25;word-break:break-word}
+.card-meta{font-size:13px;color:var(--muted);margin-top:2px}
+.badge{background:var(--flag);color:#17201c;font-size:12px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.note{padding:0 16px;margin:4px 0 0;font-size:15px;color:var(--muted);word-break:break-word}
+.matches{margin:10px 16px;border-top:1px solid var(--border)}
+.match{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);align-items:center}
+.match .k{font-size:13px;font-weight:700;color:var(--muted)}
+.match .v{display:flex;flex-wrap:wrap;gap:4px}
+.vote-bar{display:flex;align-items:center;gap:10px;padding:10px 16px 16px;flex-wrap:wrap}
+.vote{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:8px 14px;font-weight:700;border:1.5px solid var(--border);background:transparent}
+.vote.up[aria-pressed=true]{background:var(--agree-bg);border-color:var(--agree);color:var(--agree)}
+.vote.down[aria-pressed=true]{background:var(--disagree-bg);border-color:var(--disagree);color:var(--disagree)}
+.vote:disabled{opacity:.5;cursor:not-allowed}
+.meter{flex:1;min-width:100px;height:8px;border-radius:99px;background:var(--disagree-bg);overflow:hidden;display:flex}
+.meter i{display:block;height:100%;background:var(--agree)}
+.meter.empty{background:var(--border)}
+.voters{width:100%;font-size:13px;color:var(--muted)}
+.card-foot{display:flex;gap:14px;padding:0 16px 14px}
+.empty{padding:28px;text-align:center;color:var(--muted);border:2px dashed var(--border);border-radius:14px}
+
+/* Compact view + table view */
+@media (min-width:900px){main{grid-template-columns:minmax(0,400px) minmax(0,1fr)}}
+.list-tools{display:flex;gap:8px;flex-wrap:wrap}
+.cards{grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card-head{padding:10px 12px 4px}
+.card-head > div{min-width:0;flex:1}
+.card-title{font-size:16px}
+.note{padding:0 12px;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.matches{margin:6px 12px}
+.match{grid-template-columns:58px 1fr;padding:4px 0;gap:6px}
+.match .k{font-size:12px}
+.match .v{display:block;font-size:14px;font-weight:600;line-height:1.35}
+.pn.M{color:var(--male)} .pn.F{color:var(--female)}
+.pn .rk{font-size:11px;opacity:.7;margin-right:2px;font-weight:800}
+.vote-bar{padding:6px 12px 10px;gap:6px}
+.vote{padding:5px 10px;font-size:14px;gap:6px}
+.meter{min-width:40px;height:6px}
+.voters{font-size:12px}
+.voters summary{cursor:pointer}
+.card-foot{padding:0 12px 10px;gap:12px;flex-wrap:wrap}
+.linkbtn.sm{font-size:13px}
+.rename{display:flex;gap:6px;align-items:center;width:100%;margin:0}
+.rename input[type=text]{padding:6px 8px;font-size:15px;min-width:0}
+.rename .btn{padding:6px 10px;font-size:13px;white-space:nowrap}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table.tbl{border-collapse:collapse;width:100%;font-size:13px}
+.tbl th,.tbl td{padding:8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl th{font-size:12px;color:var(--muted);white-space:nowrap}
+.tbl td.pr{white-space:nowrap;line-height:1.4;font-weight:600}
+.tbl td.no{font-weight:800;color:var(--muted)}
+.tbl tr.top td{background:color-mix(in srgb,var(--flag) 16%,transparent)}
+.tbl .t-title{min-width:130px;max-width:200px;word-break:break-word}
+.tbl .t-title .card-title{font-size:14px;font-weight:700;margin:0}
+.tbl .t-meta{font-size:11px;color:var(--muted)}
+.tbl .t-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.tbl .t-acts .linkbtn{font-size:12px}
+.tbl .t-votes{white-space:nowrap}
+.tbl .vote{padding:3px 8px;font-size:12px;border-radius:8px}
+.tbl .rename{flex-wrap:wrap}
+
+.ibtn{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:30px;height:30px;padding:0 6px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:13px;font-weight:700}
+.ibtn svg{width:16px;height:16px;flex:none}
+.ibtn:hover{color:var(--ink);border-color:var(--muted)}
+.ibtn.danger{color:var(--disagree)}
+.ibtn.danger.armed{background:var(--disagree-bg);border-color:var(--disagree)}
+.ibtn.ok{background:var(--court);border-color:var(--court);color:#fff}
+.ibtn:disabled{opacity:.5;cursor:not-allowed}
+.card-foot{gap:6px;justify-content:flex-end}
+.tbl .t-acts{gap:4px;margin-top:4px}
+.rename .ibtn{height:32px}
+
+/* Roster editor */
+dialog{border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--ink);padding:20px;width:min(460px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.chip .rk{font-size:12px;font-weight:800;opacity:.7}
+.r-row .rk{font-weight:800;color:var(--muted);min-width:2ch;text-align:right}
+.mv{display:flex}
+.mv .xbtn{font-size:17px;padding:4px 5px}
+.r-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:6px;margin-bottom:6px;align-items:center}
+.gtoggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.gtoggle button{border:0;background:transparent;padding:8px 10px;font-size:14px;font-weight:700}
+.gtoggle button.on.M{background:var(--male-bg);color:var(--male)}
+.gtoggle button.on.F{background:var(--female-bg);color:var(--female)}
+.xbtn{border:0;background:transparent;font-size:20px;padding:4px 8px;color:var(--muted)}
+.banner{max-width:1100px;margin:16px auto 0;padding:0 20px}
+.banner div{background:var(--warn-bg);color:var(--warn);padding:10px 14px;border-radius:10px;font-size:14px}
+@media (prefers-reduced-motion: no-preference){.card{transition:border-color .2s}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <svg class="hero-court" viewBox="0 0 1100 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="#fff" stroke-width="3">
+      <rect x="520" y="20" width="560" height="220"/>
+      <line x1="520" y1="40" x2="1080" y2="40"/><line x1="520" y1="220" x2="1080" y2="220"/>
+      <line x1="800" y1="20" x2="800" y2="240" stroke-dasharray="6 6" stroke-width="4"/>
+      <line x1="720" y1="20" x2="720" y2="240"/><line x1="880" y1="20" x2="880" y2="240"/>
+      <line x1="540" y1="20" x2="540" y2="240"/><line x1="1060" y1="20" x2="1060" y2="240"/>
+      <line x1="540" y1="130" x2="720" y2="130"/><line x1="880" y1="130" x2="1060" y2="130"/>
+    </g>
+  </svg>
+  <div class="hero-inner">
+    <span class="team-tag">TEAM HƯỚNG NỘI</span>
+    <h1>Xếp đội hình đánh đôi</h1>
+    <p>Mỗi người tự xếp một đội hình 5 cặp, rồi cả team bấm đồng tình hoặc không đồng tình với từng phương án.</p>
+    <div class="rule-strip"><span>2 đôi nam</span><span>2 đôi nam‑nữ</span><span>1 đôi nữ</span><span>Mỗi người chỉ ở 1 cặp</span></div>
+  </div>
+</header>
+
+<div class="banner" id="banner" hidden><div id="bannerText"></div></div>
+
+<main>
+  <section class="panel builder" aria-labelledby="bTitle">
+    <h2 id="bTitle">Đội hình của bạn</h2>
+    <p class="sub">Chọn người cho từng cặp. Ô nam chỉ hiện nam, ô nữ chỉ hiện nữ.</p>
+    <div class="roster" id="roster"></div>
+    <p style="margin:-6px 0 14px"><button class="linkbtn" id="editRoster" type="button">Sửa danh sách / thứ hạng</button></p>
+    <div id="slots"></div>
+    <label class="field" for="title">Tên đội hình</label>
+    <input type="text" id="title" maxlength="60" placeholder="Ví dụ: Phương án cân bằng">
+    <label class="field" for="note">Lý do (không bắt buộc)</label>
+    <input type="text" id="note" maxlength="200" placeholder="Vì sao bạn xếp như vậy?">
+    <ul class="msgs" id="msgs"></ul>
+    <div class="actions">
+      <button class="btn primary" id="save" type="button" disabled>Đăng đội hình</button>
+      <button class="btn ghost" id="clear" type="button">Xoá chọn</button>
+    </div>
+    <div class="status" id="status" role="status"></div>
+  </section>
+
+  <section aria-labelledby="lTitle">
+    <div class="list-head">
+      <div>
+        <h2 id="lTitle">Các phương án</h2>
+        <p class="sub" style="margin:0" id="countLine">Đang tải…</p>
+      </div>
+      <div class="list-tools">
+        <div class="sort" role="group" aria-label="Kiểu xem">
+          <button type="button" data-view="table" aria-pressed="false">Bảng</button>
+          <button type="button" data-view="cards" aria-pressed="false">Thẻ</button>
+        </div>
+        <div class="sort" role="group" aria-label="Sắp xếp">
+          <button type="button" data-sort="score" aria-pressed="true">Đồng tình nhất</button>
+          <button type="button" data-sort="new" aria-pressed="false">Mới nhất</button>
+        </div>
+      </div>
+    </div>
+    <p class="sub" style="margin:0 0 12px">
+      Bạn là <b id="meName"></b> <button class="linkbtn" id="meEdit" type="button">(đổi)</button> ·
+      <button class="linkbtn" id="exportJson" type="button">Xuất JSON</button> ·
+      <label class="linkbtn" style="cursor:pointer">Nhập JSON<input type="file" id="importJson" accept=".json,application/json" hidden></label>
+    </p>
+    <div class="cards" id="cards"></div>
+  </section>
+</main>
+
+<dialog id="rosterDlg" aria-labelledby="rdTitle">
+  <h2 id="rdTitle">Danh sách thành viên</h2>
+  <p class="sub">Thứ tự trong danh sách là thứ hạng, tính riêng cho nam và nữ. Dùng ↑ ↓ để đổi hạng. Thay đổi áp dụng cho cả team.</p>
+  <div id="rRows"></div>
+  <button class="linkbtn" id="rAdd" type="button">+ Thêm người</button>
+  <div class="actions">
+    <button class="btn primary" id="rSave" type="button">Lưu danh sách</button>
+    <button class="btn ghost" id="rCancel" type="button">Huỷ</button>
+  </div>
+</dialog>
+
+<!-- Dữ liệu lưu ở data.json qua API của server.js (chạy: node server.js) -->
+<script>
+(function(){
+  "use strict";
+  const DEFAULT_ROSTER = [
+    {id:"p1",name:"Ân Nâu",g:"M"},{id:"p2",name:"Đức Thắng",g:"M"},{id:"p3",name:"Khải Tuấn",g:"M"},
+    {id:"p4",name:"Việt Lý",g:"M"},{id:"p5",name:"Ngọc Tú",g:"M"},{id:"p6",name:"Thành Nam",g:"M"},
+    {id:"p10",name:"Trần Dương",g:"F"},{id:"p7",name:"Phương Nga",g:"F"},{id:"p8",name:"Thu Thuỷ",g:"F"},{id:"p9",name:"Mỹ Xuân",g:"F"}
+  ];
+  const SLOTS = [
+    {key:"MD1",label:"Đôi nam 1",short:"Nam 1",type:"MD",g:["M","M"]},
+    {key:"MD2",label:"Đôi nam 2",short:"Nam 2",type:"MD",g:["M","M"]},
+    {key:"XD1",label:"Nam‑nữ 1",short:"Nam‑nữ 1",type:"XD",g:["M","F"]},
+    {key:"XD2",label:"Nam‑nữ 2",short:"Nam‑nữ 2",type:"XD",g:["M","F"]},
+    {key:"WD", label:"Đôi nữ",  short:"Nữ",type:"WD",g:["F","F"]}
+  ];
+  const MAX_MATCHES = 1;
+  const $ = s => document.querySelector(s);
+
+  let roster = DEFAULT_ROSTER.slice();
+  let pick = {}; SLOTS.forEach(s => pick[s.key] = ["",""]);
+  let lineups = [];          // [{id, ...data}]
+  let votes = {};            // uid -> {lineupId: 1|-1}
+  let myId = null, db = null, user = null, canWrite = true, isOwner = false;
+  let sortMode = "score";
+  let names = {};            // uid -> name
+  let voteBusy = false;
+  const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const ICON = {
+    copy: svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>'),
+    edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
+    del: svg('<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>'),
+    ok: svg('<path d="M20 6 9 17l-5-5"/>'),
+    x: svg('<path d="M18 6 6 18M6 6l12 12"/>')
+  };
+  let viewMode = matchMedia("(min-width:700px)").matches ? "table" : "cards";
+  try{ const sv = localStorage.getItem("lineupView"); if(sv === "table" || sv === "cards") viewMode = sv; }catch(_){}
+  let editingId = null, editingVal = "", focusRename = false, renameBusy = false;
+
+  const byId = id => roster.find(p => p.id === id);
+  const rankOf = id => { const p = byId(id); return p ? roster.filter(x => x.g === p.g).indexOf(p) + 1 : 0; };
+  const sortRoster = list => list.filter(p => p.g === "M").concat(list.filter(p => p.g !== "M"));
+  const nameOf = id => (byId(id) || {}).name || "(đã xoá)";
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function setStatus(t){ $("#status").textContent = t || ""; }
+  function banner(t){ $("#banner").hidden = !t; $("#bannerText").textContent = t || ""; }
+
+  // ---------- Builder ----------
+  function usage(){
+    const u = {};
+    SLOTS.forEach(s => pick[s.key].forEach(id => { if(id) u[id] = (u[id]||0)+1; }));
+    return u;
+  }
+  function renderRoster(){
+    const u = usage();
+    $("#roster").innerHTML = roster.map(p => {
+      const n = u[p.id]||0;
+      return `<span class="chip ${p.g}${n>=2?" used2":""}"><span class="rk">#${rankOf(p.id)}</span>${esc(p.name)}${n?`<span class="count">×${n}</span>`:""}</span>`;
+    }).join("");
+  }
+  function renderSlots(){
+    $("#slots").innerHTML = SLOTS.map(s => `
+      <div class="slot ${s.type}">
+        <div class="slot-name">${s.label}</div>
+        <div class="pair">
+          ${selectHtml(s,0)}<span class="amp">&amp;</span>${selectHtml(s,1)}
+        </div>
+      </div>`).join("");
+    document.querySelectorAll("#slots select").forEach(sel => sel.addEventListener("change", e => {
+      const [k,i] = e.target.dataset.slot.split(":");
+      pick[k][+i] = e.target.value;
+      refreshBuilder();
+    }));
+  }
+  function selectHtml(s,i){
+    const g = s.g[i];
+    const opts = roster.filter(p => p.g === g)
+      .map(p => `<option value="${p.id}"${pick[s.key][i]===p.id?" selected":""}>${rankOf(p.id)}. ${esc(p.name)}</option>`).join("");
+    const lbl = g==="M" ? "Chọn nam" : "Chọn nữ";
+    return `<select data-slot="${s.key}:${i}" aria-label="${s.label} – người ${i+1}"><option value="">${lbl}</option>${opts}</select>`;
+  }
+  function validate(){
+    const errs = [], warns = [];
+    const u = usage();
+    const nM = roster.filter(p => p.g === "M").length, nF = roster.filter(p => p.g === "F").length;
+    if(nM < 6 || nF < 4) errs.push(`Cần ít nhất 6 nam và 4 nữ vì mỗi người chỉ ở 1 cặp; hiện có ${nM} nam, ${nF} nữ. Thêm người trong “Sửa danh sách”.`);
+    let filled = true;
+    SLOTS.forEach(s => {
+      const [a,b] = pick[s.key];
+      if(!a || !b) filled = false;
+      if(a && b && a === b) errs.push(`${s.label}: một người không thể ghép với chính mình.`);
+    });
+    // duplicate pairs
+    const seen = {};
+    SLOTS.forEach(s => {
+      const [a,b] = pick[s.key]; if(!a||!b) return;
+      const k = [a,b].sort().join("|");
+      if(seen[k]) errs.push(`${seen[k]} và ${s.label} đang là cùng một cặp.`); else seen[k] = s.label;
+    });
+    Object.entries(u).forEach(([id,n]) => {
+      if(n > MAX_MATCHES) errs.push(`${nameOf(id)} đang nằm trong ${n} cặp, mỗi người chỉ được ở 1 cặp.`);
+    });
+    const unused = roster.filter(p => !u[p.id]).map(p => p.name);
+    if(filled && unused.length) warns.push(`Chưa được xếp: ${unused.join(", ")}.`);
+    return {errs, warns, filled};
+  }
+  function refreshBuilder(){
+    renderRoster();
+    const u = usage();
+    document.querySelectorAll("#slots select").forEach(sel => {
+      sel.classList.toggle("bad", !!sel.value && u[sel.value] > MAX_MATCHES);
+    });
+    const v = validate();
+    $("#msgs").innerHTML = v.errs.map(e=>`<li class="err">${esc(e)}</li>`).join("") + v.warns.map(w=>`<li class="warn">${esc(w)}</li>`).join("");
+    $("#save").disabled = !(v.filled && !v.errs.length && db && canWrite);
+    if(!v.filled) setStatus("Điền đủ 5 cặp để đăng.");
+    else if(v.errs.length) setStatus("Sửa các lỗi ở trên để đăng.");
+    else if(!db) setStatus("Không kết nối được dữ liệu chung, chưa thể đăng.");
+    else if(!canWrite) setStatus("Bạn chỉ có quyền xem.");
+    else setStatus("");
+  }
+
+  async function saveLineup(){
+    const v = validate();
+    if(!v.filled || v.errs.length || !db) return;
+    const title = $("#title").value.trim() || "Đội hình không tên";
+    const note = $("#note").value.trim();
+    const pairs = {}; SLOTS.forEach(s => pairs[s.key] = pick[s.key].slice());
+    $("#save").disabled = true; setStatus("Đang đăng…");
+    try{
+      await db.collection("lineups").doc().set({title, note, pairs, authorId: myId || "", createdAt: Date.now()});
+      setStatus("Đã đăng đội hình.");
+      clearPick(); $("#title").value = ""; $("#note").value = "";
+    }catch(e){
+      if(e && e.code === "invalid_argument"){ canWrite = false; setStatus("Bạn chỉ có quyền xem, không đăng được."); }
+      else setStatus("Chưa đăng được: " + ((e && e.message) || "thử lại sau giây lát."));
+      refreshBuilder();
+    }
+  }
+  function clearPick(){ SLOTS.forEach(s => pick[s.key] = ["",""]); renderSlots(); refreshBuilder(); }
+
+  // ---------- Lineup list ----------
+  function tally(lid){
+    let up = 0, down = 0; const upIds = [], downIds = [];
+    Object.entries(votes).forEach(([uid,m]) => {
+      if(!m) return;
+      if(m[lid] === 1){ up++; upIds.push(uid); } else if(m[lid] === -1){ down++; downIds.push(uid); }
+    });
+    return {up, down, upIds, downIds};
+  }
+  function myVote(lid){ return myId && votes[myId] ? (votes[myId][lid] || 0) : 0; }
+
+  async function renderCards(){
+    const list = lineups.map(l => ({...l, t: tally(l.id)}));
+    if(sortMode === "score") list.sort((a,b) => (b.t.up-b.t.down)-(a.t.up-a.t.down) || b.t.up-a.t.up || (b.createdAt||0)-(a.createdAt||0));
+    else list.sort((a,b) => (b.createdAt||0)-(a.createdAt||0));
+    $("#countLine").textContent = list.length ? `${list.length} đội hình đã được đề xuất` : "Chưa có đội hình nào";
+    if(!list.length){
+      $("#cards").innerHTML = `<div class="empty">Chưa ai đăng đội hình. Xếp 5 cặp bên cạnh và bấm “Đăng đội hình” để mở màn.</div>`;
+      return;
+    }
+    const topScore = sortMode==="score" ? (list[0].t.up - list[0].t.down) : null;
+    const ids = new Set();
+    list.forEach(l => { if(l.authorId) ids.add(l.authorId); l.t.upIds.forEach(i=>ids.add(i)); l.t.downIds.forEach(i=>ids.add(i)); });
+    await loadNames([...ids]);
+    const ae = document.activeElement;
+    const hadFocus = !!(ae && ae.id === "renameInput");
+    const selPos = hadFocus ? ae.selectionStart : null;
+    if(editingId && !lineups.some(l => l.id === editingId)) editingId = null;
+    const rows = list.map((l,idx) => {
+      const total = l.t.up + l.t.down;
+      const upN = l.t.upIds.map(i=>names[i]||"Ai đó"), downN = l.t.downIds.map(i=>names[i]||"Ai đó");
+      return {
+        l, idx, total, mv: myVote(l.id),
+        pct: total ? Math.round(l.t.up/total*100) : 0,
+        isTop: idx===0 && topScore!==null && topScore>0,
+        mine: !!(myId && l.authorId === myId),
+        canEdit: !!db && canWrite && ((myId && l.authorId === myId) || isOwner),
+        author: (l.authorId ? (names[l.authorId] || "Ai đó") : "Ai đó") + ((myId && l.authorId === myId) ? " (bạn)" : ""),
+        voterLine: [upN.length?`Đồng tình: ${upN.join(", ")}`:"", downN.length?`Không đồng tình: ${downN.join(", ")}`:""].filter(Boolean).join(" • "),
+        dis: (!db || !canWrite || !myId) ? " disabled" : ""
+      };
+    });
+    $("#cards").className = viewMode === "table" ? "" : "cards";
+    $("#cards").innerHTML = viewMode === "table" ? tableHtml(rows) : rows.map(cardHtml).join("");
+    const ri = $("#renameInput");
+    if(ri && (hadFocus || focusRename)){
+      ri.focus();
+      const p = selPos !== null ? selPos : ri.value.length;
+      try{ ri.setSelectionRange(p, p); }catch(_){}
+    }
+    focusRename = false;
+  }
+  function pairNames(l, s){
+    const p = (l.pairs && l.pairs[s.key]) || ["",""];
+    return p.map(id => { const pl = byId(id); return `<span class="pn ${pl?pl.g:""}">${pl?`<span class="rk">#${rankOf(id)}</span>`:""}${esc(nameOf(id))}</span>`; });
+  }
+  function titleHtml(r){
+    const l = r.l;
+    if(editingId === l.id) return `<form class="rename" data-rename-form="${l.id}"><input type="text" id="renameInput" maxlength="60" value="${esc(editingVal)}" aria-label="Tên phương án mới"><button class="ibtn ok" type="submit" title="Lưu" aria-label="Lưu tên"${renameBusy?" disabled":""}>${ICON.ok}</button><button class="ibtn" type="button" data-rename-cancel title="Huỷ" aria-label="Huỷ đổi tên">${ICON.x}</button></form>`;
+    return `<h3 class="card-title"${l.note?` title="${esc(l.note)}"`:""}>${esc(l.title||"Đội hình không tên")}</h3>`;
+  }
+  function voteBtns(r, short){
+    const l = r.l;
+    return `<button class="vote up" type="button" data-vote="1" data-id="${l.id}" aria-pressed="${r.mv===1}" aria-label="Đồng tình, ${l.t.up} phiếu" title="Đồng tình"${r.dis}>👍 <span>${l.t.up}</span></button>`
+      + (short?" ":"")
+      + `<button class="vote down" type="button" data-vote="-1" data-id="${l.id}" aria-pressed="${r.mv===-1}" aria-label="Không đồng tình, ${l.t.down} phiếu" title="Không đồng tình"${r.dis}>👎 <span>${l.t.down}</span></button>`;
+  }
+  function actsHtml(r){
+    const l = r.l;
+    return `<button class="ibtn" type="button" data-copy="${l.id}" title="Chép sang khung xếp để chỉnh" aria-label="Chép sang khung xếp để chỉnh">${ICON.copy}</button>`
+      + (r.canEdit ? `<button class="ibtn" type="button" data-rename="${l.id}" title="Đổi tên" aria-label="Đổi tên">${ICON.edit}</button><button class="ibtn danger" type="button" data-del="${l.id}" title="Xoá" aria-label="Xoá">${ICON.del}</button>` : "");
+  }
+  function cardHtml(r){
+    const l = r.l;
+    const matches = SLOTS.map(s => `<div class="match"><span class="k">${s.short}</span><span class="v">${pairNames(l,s).join(" &amp; ")}</span></div>`).join("");
+    return `<article class="card${r.isTop?" top":""}">
+        <div class="card-head">
+          <div>${titleHtml(r)}
+          <div class="card-meta">#${r.idx+1} · ${esc(r.author)} · ${fmtTime(l.createdAt)}</div></div>
+          ${r.isTop?`<span class="badge">Dẫn đầu</span>`:""}
+        </div>
+        ${l.note?`<p class="note">${esc(l.note)}</p>`:""}
+        <div class="matches">${matches}</div>
+        <div class="vote-bar">
+          ${voteBtns(r)}
+          <div class="meter${r.total?"":" empty"}" title="${r.total?r.pct+"% đồng tình":"Chưa có phiếu"}"><i style="width:${r.pct}%"></i></div>
+          ${r.voterLine?`<details class="voters"><summary>Ai đã bỏ phiếu</summary>${esc(r.voterLine)}</details>`:""}
+        </div>
+        <div class="card-foot">${actsHtml(r)}</div>
+      </article>`;
+  }
+  function tableHtml(rows){
+    const head = `<tr><th>#</th><th>Phương án</th>${SLOTS.map(s=>`<th>${s.short}</th>`).join("")}<th>Phiếu</th></tr>`;
+    const body = rows.map(r => {
+      const l = r.l;
+      return `<tr class="${r.isTop?"top":""}">
+        <td class="no">${r.idx+1}</td>
+        <td class="t-title">${titleHtml(r)}<div class="t-meta">${esc(r.author)} · ${fmtTime(l.createdAt)}${r.isTop?" · <b>Dẫn đầu</b>":""}</div><div class="t-acts">${actsHtml(r)}</div></td>
+        ${SLOTS.map(s => `<td class="pr">${pairNames(l,s).join("<br>")}</td>`).join("")}
+        <td class="t-votes"${r.voterLine?` title="${esc(r.voterLine)}"`:""}>${voteBtns(r, true)}</td>
+      </tr>`;
+    }).join("");
+    return `<div class="tbl-wrap"><table class="tbl"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+  }
+  async function saveRename(id){
+    const v = editingVal.trim();
+    if(!v || !db || renameBusy) return;
+    const l = lineups.find(x => x.id === id);
+    if(l && l.title === v){ editingId = null; renderCards(); return; }
+    renameBusy = true; renderCards();
+    try{
+      await db.doc("lineups/"+id).update({title: v});
+      if(l) l.title = v;
+      editingId = null;
+    }catch(e){
+      banner(e && e.code === "invalid_argument" ? "Bạn không có quyền đổi tên phương án này." : "Chưa đổi tên được, thử lại sau giây lát.");
+      focusRename = true;
+    }finally{ renameBusy = false; renderCards(); }
+  }
+  function fmtTime(t){
+    if(!t) return "";
+    const d = new Date(t);
+    return d.toLocaleString("vi-VN",{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit"});
+  }
+  async function loadNames(ids){
+    if(!user || !ids.length) return;
+    try{
+      const ps = await user.profiles(ids);
+      ids.forEach(i => { if(ps[i]) names[i] = ps[i].isMe ? "Bạn" : (ps[i].name || ""); });
+    }catch(_){}
+  }
+
+  async function castVote(lid, val){
+    if(!db || !myId || voteBusy) return;
+    const mine = Object.assign({}, votes[myId] || {});
+    if(mine[lid] === val) delete mine[lid]; else mine[lid] = val;
+    // drop votes for deleted lineups
+    const live = new Set(lineups.map(l=>l.id));
+    Object.keys(mine).forEach(k => { if(!live.has(k)) delete mine[k]; });
+    const prev = votes[myId];
+    votes[myId] = mine; renderCards();
+    voteBusy = true;
+    try{ await db.doc("votes/"+myId).set({v: mine}); }
+    catch(e){
+      votes[myId] = prev; renderCards();
+      if(e && e.code === "invalid_argument"){ canWrite = false; banner("Bạn chỉ có quyền xem nên không bỏ phiếu được."); renderCards(); }
+      else setStatus("Chưa ghi được phiếu. Thử lại.");
+    }finally{ voteBusy = false; }
+  }
+
+  $("#cards").addEventListener("click", async e => {
+    const rn = e.target.closest("[data-rename]");
+    if(rn){
+      const l = lineups.find(x => x.id === rn.dataset.rename); if(!l) return;
+      editingId = l.id; editingVal = l.title || ""; focusRename = true; renderCards(); return;
+    }
+    if(e.target.closest("[data-rename-cancel]")){ editingId = null; renderCards(); return; }
+    const vb = e.target.closest("[data-vote]");
+    if(vb){ castVote(vb.dataset.id, +vb.dataset.vote); return; }
+    const cp = e.target.closest("[data-copy]");
+    if(cp){
+      const l = lineups.find(x => x.id === cp.dataset.copy); if(!l) return;
+      SLOTS.forEach(s => pick[s.key] = (l.pairs && l.pairs[s.key] ? l.pairs[s.key].slice() : ["",""]).map(id => byId(id)?id:""));
+      $("#title").value = ""; renderSlots(); refreshBuilder();
+      document.querySelector(".builder").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+      setStatus("Đã chép. Chỉnh lại rồi đăng thành phương án mới.");
+      return;
+    }
+    const del = e.target.closest("[data-del]");
+    if(del && db){
+      if(del.dataset.armed !== "1"){
+        del.dataset.armed = "1"; del.classList.add("armed"); del.innerHTML = ICON.del + "Xoá?";
+        del.title = "Bấm lần nữa để xoá"; del.setAttribute("aria-label", "Bấm lần nữa để xoá");
+        setTimeout(() => { if(del.isConnected && !del.disabled){ del.dataset.armed = ""; del.classList.remove("armed"); del.innerHTML = ICON.del; del.title = "Xoá"; del.setAttribute("aria-label", "Xoá"); } }, 4000);
+        return;
+      }
+      del.disabled = true;
+      try{ await db.doc("lineups/"+del.dataset.del).delete(); }
+      catch(e){
+        del.disabled = false; del.dataset.armed = ""; del.classList.remove("armed"); del.innerHTML = ICON.del;
+        banner(e && e.code === "invalid_argument" ? "Bạn không có quyền xoá đội hình này." : "Chưa xoá được, thử lại sau giây lát.");
+      }
+    }
+  });
+  document.querySelectorAll("[data-sort]").forEach(b => b.addEventListener("click", () => {
+    sortMode = b.dataset.sort;
+    document.querySelectorAll("[data-sort]").forEach(x => x.setAttribute("aria-pressed", x===b));
+    renderCards();
+  }));
+  function syncView(){ document.querySelectorAll("[data-view]").forEach(x => x.setAttribute("aria-pressed", x.dataset.view === viewMode)); }
+  syncView();
+  document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => {
+    viewMode = b.dataset.view; syncView();
+    try{ localStorage.setItem("lineupView", viewMode); }catch(_){}
+    if(lineups.length) renderCards();
+  }));
+  $("#cards").addEventListener("submit", e => {
+    const f = e.target.closest("[data-rename-form]"); if(!f) return;
+    e.preventDefault(); saveRename(f.dataset.renameForm);
+  });
+  $("#cards").addEventListener("input", e => { if(e.target.id === "renameInput") editingVal = e.target.value; });
+  $("#cards").addEventListener("keydown", e => {
+    if(e.target.id === "renameInput" && e.key === "Escape"){ e.preventDefault(); editingId = null; renderCards(); }
+  });
+
+  // ---------- Roster editor ----------
+  let draft = [];
+  function renderDraft(){
+    draft = sortRoster(draft);
+    $("#rRows").innerHTML = draft.map((p,i) => `
+      <div class="r-row">
+        <span class="rk">${draft.filter(x => x.g === p.g).indexOf(p) + 1}</span>
+        <input type="text" value="${esc(p.name)}" data-i="${i}" aria-label="Tên người ${i+1}" maxlength="40">
+        <div class="gtoggle" role="group" aria-label="Giới tính">
+          <button type="button" class="M${p.g==="M"?" on":""}" data-g="M" data-i="${i}" aria-pressed="${p.g==="M"}">Nam</button>
+          <button type="button" class="F${p.g==="F"?" on":""}" data-g="F" data-i="${i}" aria-pressed="${p.g==="F"}">Nữ</button>
+        </div>
+        <span class="mv"><button type="button" class="xbtn" data-up="${i}" aria-label="Đưa ${esc(p.name)} lên hạng">↑</button><button type="button" class="xbtn" data-down="${i}" aria-label="Đưa ${esc(p.name)} xuống hạng">↓</button></span>
+        <button type="button" class="xbtn" data-rm="${i}" aria-label="Bỏ ${esc(p.name)}">×</button>
+      </div>`).join("");
+  }
+  $("#rRows").addEventListener("input", e => { if(e.target.dataset.i) draft[+e.target.dataset.i].name = e.target.value; });
+  $("#rRows").addEventListener("click", e => {
+    const g = e.target.closest("[data-g]"); if(g){ draft[+g.dataset.i].g = g.dataset.g; renderDraft(); return; }
+    const up = e.target.closest("[data-up]"), dn = e.target.closest("[data-down]");
+    if(up || dn){
+      const i = +(up ? up.dataset.up : dn.dataset.down), j = up ? i - 1 : i + 1;
+      if(j >= 0 && j < draft.length && draft[j].g === draft[i].g){ [draft[i], draft[j]] = [draft[j], draft[i]]; renderDraft(); }
+      return;
+    }
+    const r = e.target.closest("[data-rm]"); if(r){ draft.splice(+r.dataset.rm,1); renderDraft(); }
+  });
+  $("#rAdd").addEventListener("click", () => { draft.push({id:"p"+Date.now().toString(36), name:"", g:"M"}); renderDraft(); const ins = $("#rRows").querySelectorAll("input"); ins[ins.length-1].focus(); });
+  $("#editRoster").addEventListener("click", () => {
+    draft = roster.map(p => ({...p})); renderDraft();
+    $("#rSave").disabled = !(db && canWrite);
+    $("#rosterDlg").showModal();
+  });
+  $("#rCancel").addEventListener("click", () => $("#rosterDlg").close());
+  $("#rSave").addEventListener("click", async () => {
+    const clean = draft.map(p => ({id:p.id, name:p.name.trim(), g:p.g})).filter(p => p.name);
+    if(!db) return;
+    $("#rSave").disabled = true;
+    try{ await db.doc("config/roster").set({players: clean}); $("#rosterDlg").close(); }
+    catch(e){ banner(e && e.code==="invalid_argument" ? "Bạn không có quyền sửa danh sách." : "Chưa lưu được danh sách, thử lại."); $("#rSave").disabled = false; }
+  });
+
+  $("#save").addEventListener("click", saveLineup);
+  $("#clear").addEventListener("click", clearPick);
+
+  // ---------- Init ----------
+  renderSlots(); refreshBuilder();
+  $("#cards").innerHTML = `<div class="empty">Đang tải các phương án…</div>`;
+
+  // ---------- API store (server.js → data.json) ----------
+  // ponytail: đồng bộ giữa mọi người bằng poll 5s, đổi sang SSE/WebSocket nếu cần realtime thật.
+  async function makeApiDb(){
+    let data = {config:{}, lineups:{}, votes:{}};
+    const subs = [];
+    const call = async (method, url, body) => {
+      const r = await fetch("/api" + url, {method, headers: {"Content-Type": "application/json"}, body: body && JSON.stringify(body)});
+      if(!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Lỗi máy chủ");
+      return r.status === 204 ? null : r.json();
+    };
+    let last = "";
+    const refresh = async () => {
+      const d = await call("GET", "");
+      const s = JSON.stringify(d);
+      if(s === last) return; // không đổi thì khỏi vẽ lại (giữ ô đang gõ)
+      last = s; data = d; subs.forEach(f => f());
+    };
+    const write = async (...a) => { const r = await call(...a); await refresh(); return r; };
+    const col = c => (data[c] = data[c] || {});
+    const listen = run => { subs.push(run); run(); };
+    const enc = encodeURIComponent;
+    await refresh();
+    setInterval(() => refresh().catch(() => {}), 5000);
+    return {
+      dump: () => data,
+      replace: d => write("PUT", "", d),
+      collection: c => ({
+        doc: () => ({ set: v => write("POST", "/" + c, v) }),
+        onSnapshot: f => listen(() => f({docs: Object.entries(col(c)).map(([id,v]) => ({id, data: () => v}))}))
+      }),
+      doc: path => {
+        const [c,id] = path.split("/");
+        const u = `/${c}/${enc(id)}`;
+        return {
+          set: v => write("PUT", u, v),
+          update: v => write("PATCH", u, v),
+          delete: () => write("DELETE", u),
+          onSnapshot: f => listen(() => f({exists: id in col(c), data: () => col(c)[id]}))
+        };
+      }
+    };
+  }
+
+  function askName(){
+    const n = (prompt("Tên của bạn (dùng để đứng tên đội hình và bỏ phiếu):", myId || "") || "").trim();
+    if(n){ myId = n; try{ localStorage.setItem("lineupMe", n); }catch(_){} }
+    $("#meName").textContent = myId || "(chưa đặt tên)";
+  }
+  $("#meEdit").addEventListener("click", () => { askName(); renderCards(); });
+  $("#exportJson").addEventListener("click", () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(db.dump(), null, 2)], {type: "application/json"}));
+    a.download = "xep-doi-cau-long.json"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $("#importJson").addEventListener("change", async e => {
+    const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+    try{
+      const d = JSON.parse(await f.text());
+      if(!d || typeof d !== "object" || Array.isArray(d)) throw 0;
+      await db.replace({config: d.config || {}, lineups: d.lineups || {}, votes: d.votes || {}});
+      banner("");
+    }catch(_){ banner("File JSON không hợp lệ."); }
+  });
+
+  (async function init(){
+    try{ db = await makeApiDb(); }
+    catch(_){ banner("Không kết nối được API. Mở trang qua http://localhost:3000 sau khi chạy: node server.js"); $("#countLine").textContent = "Không tải được danh sách."; return; }
+    user = { profiles: async ids => Object.fromEntries(ids.map(i => [i, {name: i, isMe: i === myId}])) };
+    isOwner = true; // ponytail: chạy local nên ai cũng sửa/xoá được
+    try{ myId = localStorage.getItem("lineupMe"); }catch(_){}
+    if(!myId) askName(); else $("#meName").textContent = myId;
+    refreshBuilder();
+
+    const timer = setTimeout(() => { $("#countLine").textContent = "Tải chậm hơn bình thường…"; }, 10000);
+    let gotL = false;
+    db.doc("config/roster").onSnapshot(s => {
+      const d = s.exists && s.data();
+      roster = sortRoster((d && Array.isArray(d.players) && d.players.length) ? d.players : DEFAULT_ROSTER.slice());
+      SLOTS.forEach(sl => pick[sl.key] = pick[sl.key].map(id => byId(id)?id:""));
+      renderSlots(); refreshBuilder(); if(gotL) renderCards();
+    }, () => {});
+    db.collection("lineups").onSnapshot(s => {
+      clearTimeout(timer); gotL = true;
+      lineups = s.docs.map(x => ({id:x.id, ...x.data()}));
+      renderCards();
+    }, () => { clearTimeout(timer); $("#countLine").textContent = "Không tải được danh sách."; });
+    db.collection("votes").onSnapshot(s => {
+      const nv = {};
+      s.docs.forEach(x => { const d = x.data(); nv[x.id] = (d && d.v) || {}; });
+      if(voteBusy && myId) nv[myId] = votes[myId];
+      votes = nv;
+      if(gotL) renderCards();
+    }, () => {});
+  })();
+})();
+</script>
+</body>
+</html>
