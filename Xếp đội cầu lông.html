@@ -182,6 +182,14 @@ table.tbl{border-collapse:collapse;width:100%;font-size:13px}
 /* Roster editor */
 dialog{border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--ink);padding:20px;width:min(460px,92vw)}
 dialog::backdrop{background:rgba(0,0,0,.45)}
+#rulesDlg{width:min(640px,94vw);max-height:88vh}
+#rulesDlg h3{margin:18px 0 6px;font-size:16px;color:var(--court)}
+#rulesDlg ul{margin:0;padding-left:20px}
+#rulesDlg li{margin:3px 0}
+.rtbl{width:100%;border-collapse:collapse;font-size:14px}
+.rtbl th,.rtbl td{border-bottom:1px solid var(--border);padding:6px 4px;text-align:left;vertical-align:top}
+.rtbl th{white-space:nowrap}
+.rules-btn{margin-top:16px;background:var(--flag);color:#17201c;border:2px solid #17201c;font-weight:800;padding:8px 14px;border-radius:0}
 .chip .rk{font-size:12px;font-weight:800;opacity:.7}
 .r-row .rk{font-weight:800;color:var(--muted);min-width:2ch;text-align:right}
 .mv{display:flex}
@@ -214,6 +222,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <h1>Xếp đội hình đánh đôi</h1>
     <p>Mỗi người tự xếp một đội hình 5 cặp, rồi cả team bấm đồng tình hoặc không đồng tình với từng phương án.</p>
     <div class="rule-strip"><span>2 đôi nam</span><span>2 đôi nam‑nữ</span><span>1 đôi nữ</span><span>Mỗi người chỉ ở 1 cặp</span></div>
+    <button class="rules-btn" type="button" onclick="document.getElementById('rulesDlg').showModal()">📋 Điều lệ giải 11/2026</button>
   </div>
 </header>
 
@@ -263,6 +272,35 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="cards" id="cards"></div>
   </section>
 </main>
+
+<dialog id="rulesDlg" aria-labelledby="rlTitle">
+  <h2 id="rlTitle" style="margin:0">Điều lệ giao lưu nội bộ TDL Badminton Class 11/2026</h2>
+
+  <h3>I. Thời gian – địa điểm</h3>
+  <table class="rtbl">
+    <tr><th>28–30/10</th><td>Công bố đội trưởng, đội phó và danh sách học viên tham dự</td></tr>
+    <tr><th>22h 31/10</th><td>Pick team (online)</td></tr>
+    <tr><th>12h CN 22/11</th><td>Thi đấu (dự kiến)</td></tr>
+    <tr><th>Sân</th><td>Sân cầu lông Nơ Trang Long, Bình Thạnh</td></tr>
+    <tr><th>Cầu</th><td>Iwin (dự kiến)</td></tr>
+  </table>
+
+  <h3>II. Thể thức thi đấu (dự kiến)</h3>
+  <ul>
+    <li>Thi đấu <b>đồng đội</b>. Mỗi trận gồm 5 nội dung: <b>2 đôi nam, 2 đôi nam‑nữ, 1 đôi nữ</b>. Mỗi VĐV chỉ đánh 1 nội dung trong một trận.</li>
+    <li>Mỗi nội dung đánh <b>1 set 21 điểm</b>. Đội thắng <b>3/5 nội dung</b> là đội thắng trận.</li>
+  </ul>
+  <table class="rtbl" style="margin-top:8px">
+    <tr><th>Vòng</th><th>Cách thi đấu</th><th>Số đội đi tiếp</th></tr>
+    <tr><td>Vòng loại</td><td>12 đội chia <b>4 bảng × 3 đội</b> (bốc thăm), đấu vòng tròn trong bảng</td><td><b>8 đội</b>: nhất và nhì mỗi bảng</td></tr>
+    <tr><td>Tứ kết</td><td>Loại trực tiếp, đấu chéo: A1–B2, B1–A2, C1–D2, D1–C2</td><td>4 đội thắng</td></tr>
+    <tr><td>Bán kết</td><td>Loại trực tiếp: thắng A1/B2 gặp thắng C1/D2; thắng B1/A2 gặp thắng D1/C2</td><td>2 đội thắng vào chung kết, 2 đội thua tranh hạng Ba</td></tr>
+    <tr><td>Chung kết xếp hạng</td><td>Trận chung kết và trận tranh hạng Ba</td><td>Hạng Nhất, Nhì, Ba</td></tr>
+  </table>
+  <p class="sub" style="margin:8px 0 0">Xếp hạng trong bảng: số trận thắng → hiệu số nội dung thắng/thua → hiệu số điểm → đối đầu trực tiếp.</p>
+
+  <form method="dialog" class="actions"><button class="btn primary">Đóng</button></form>
+</dialog>
 
 <dialog id="rosterDlg" aria-labelledby="rdTitle">
   <h2 id="rdTitle">Danh sách thành viên</h2>
